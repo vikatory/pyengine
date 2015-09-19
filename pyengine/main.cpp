@@ -1,11 +1,13 @@
-// pyengine.cpp : 定义控制台应用程序的入口点。
-//
 
 #include <stdio.h>
 #include <tchar.h>
+#include "pyengine.h"
 
 int main()
 {
+	PyEngine *pPyEngine = new PyEngine();
+	pPyEngine->init();
+	delete pPyEngine;
     return 0;
 }
 
