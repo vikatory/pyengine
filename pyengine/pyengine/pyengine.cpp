@@ -3,11 +3,15 @@
 #include <iostream>
 #include "sys.h"
 #include <boost/python.hpp>
+#include <boost/detail/lightweight_test.hpp>
 
 using namespace std;
 
 namespace bf = boost::filesystem;				// 简单别名
 namespace python = boost::python;
+
+template <class T>
+void safe_execute(T functor);
 
 PyEngine::PyEngine()
 {
@@ -17,44 +21,8 @@ PyEngine::PyEngine()
 PyEngine::~PyEngine()
 {
 	// Boost.Python doesn't support Py_Finalize yet.
-	// Py_Finalize();
+	 Py_Finalize();
 }
-
-
-
-
-
-
-
-#include <boost/detail/lightweight_test.hpp>
-
-
-void eval_test()
-{
-	python::object result = python::eval("'abcdefg'.upper()");
-	std::string value = python::extract<std::string>(result) BOOST_EXTRACT_WORKAROUND;
-	BOOST_TEST(value == "ABCDEFG");
-}
-
-void check_pyerr(bool pyerr_expected = false)
-{
-	if (PyErr_Occurred())
-	{
-		if (!pyerr_expected) {
-			BOOST_ERROR("Python Error detected");
-			PyErr_Print();
-		}
-		else {
-			PyErr_Clear();
-		}
-	}
-	else
-	{
-		BOOST_ERROR("A C++ exception was thrown  for which "
-			"there was no exception handler registered.");
-	}
-}
-
 
 void PyEngine::init()
 {
@@ -70,33 +38,158 @@ void PyEngine::init()
 
 }
 
-std::string PyEngine::eval(std::string expression)  // eval函数可以计算Python表达式，并返回结果
+void evalPyExpr(std::string const &expression, std::string *result)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
 	python::object oResult = python::eval(expression.c_str(), oPyMainNamespace);
-	std::string sValue = python::extract<std::string>(oResult) BOOST_EXTRACT_WORKAROUND;
+	*result = python::extract<std::string>(oResult) BOOST_EXTRACT_WORKAROUND;
+}
+
+std::string PyEngine::eval(std::string const &expression)  // eval函数可以计算Python表达式，并返回结果
+{
+	std::string sValue = "";
+	safe_execute(boost::bind(evalPyExpr, expression, &sValue));
 	return sValue;
 }
 
-void PyEngine::exec(std::string code)  // 通过exec可以执行动态Python代码，exec不返回结果
+void execPyCode(std::string const &code)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
 	python::object oResult = python::exec(code.c_str(), oPyMainNamespace);
 }
 
+void PyEngine::exec(std::string const &code)  // 通过exec可以执行动态Python代码，exec不返回结果
+{
+	safe_execute(boost::bind(execPyCode, code));
+}
+
+void execPyFile(std::string const &filename)
+{
+	python::object oPyMainModule = python::import("__main__");
+	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
+	python::object result = python::exec_file(filename.c_str(), oPyMainModule);
+}
+
+void PyEngine::exec_file(std::string const &filename)
+{
+	safe_execute(boost::bind(execPyFile, filename));
+}
+
+
+
+
+
+
 void PyEngine::test()
 {
 	exec("a='11ass77'");
 	string value = eval("a.upper()");
-	cout << value << endl;
+	cout << value << "-------------" << endl;
 
-	//object main_module = import("__main__");
-	//if (python::handle_exception(eval_test)) {
-	//	check_pyerr();
-	//}
 }
 
 
+template <class T>
+void safe_execute(T functor)
+{
+	void check_pyerr(bool pyerr_expected = false);
+	try
+	{
+		if (python::handle_exception(functor))
+		{
+			check_pyerr();
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+};
+
+
+void check_pyerr(bool pyerr_expected = false)
+{
+	if (PyErr_Occurred())
+	{
+		if (!pyerr_expected)
+		{
+			//BOOST_ERROR("Python错误");
+			if (PyErr_ExceptionMatches(PyExc_SyntaxError))
+			{
+				void log_python_exception();
+				log_python_exception();
+			}
+			else
+			{
+				PyErr_Print();
+			}
+		}
+		else
+			PyErr_Clear();
+	}
+	else
+		BOOST_ERROR("一个C++表达式被抛出，这里没有表达式句柄被注册r.");
+}
+
+std::string strErrorMsg;
+
+void log_python_exception()
+{
+	using namespace boost::python;
+	if (!Py_IsInitialized())
+	{
+		strErrorMsg = "Python运行环境没有初始化!";
+		return;
+	}
+	if (PyErr_Occurred() != NULL)
+	{
+		PyObject *type_obj, *value_obj, *traceback_obj;
+		PyErr_Fetch(&type_obj, &value_obj, &traceback_obj);
+		if (value_obj == NULL)
+			return;
+
+		strErrorMsg.clear();
+		PyErr_NormalizeException(&type_obj, &value_obj, 0);
+		if (PyBytes_Check(PyObject_Str(value_obj)))
+		{
+			strErrorMsg = PyBytes_AsString(PyObject_Str(value_obj));
+		}
+
+		if (traceback_obj != NULL)
+		{
+			strErrorMsg += "Traceback:";
+			PyObject *pModuleName = PyBytes_FromString("traceback");
+			PyObject *pTraceModule = PyImport_Import(pModuleName);
+			Py_XDECREF(pModuleName);
+			if (pTraceModule != NULL)
+			{
+				PyObject *pModuleDict = PyModule_GetDict(pTraceModule);
+				if (pModuleDict != NULL)
+				{
+					PyObject *pFunc = PyDict_GetItemString(pModuleDict, "format_exception");
+					if (pFunc != NULL)
+					{
+						PyObject *errList = PyObject_CallFunctionObjArgs(pFunc, type_obj, value_obj, traceback_obj, NULL);
+						if (errList != NULL)
+						{
+							Py_ssize_t listSize = PyList_Size(errList);
+							for (Py_ssize_t i = 0; i < listSize; ++i)
+							{
+								strErrorMsg += PyBytes_AsString(PyList_GetItem(errList, i));
+							}
+						}
+					}
+				}
+				Py_XDECREF(pTraceModule);
+			}
+		}
+		Py_XDECREF(type_obj);
+		Py_XDECREF(value_obj);
+		Py_XDECREF(traceback_obj);
+	}
+
+	cout << strErrorMsg << endl;
+}
 
