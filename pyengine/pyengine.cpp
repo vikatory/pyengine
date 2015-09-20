@@ -71,8 +71,9 @@ void PyEngine::init()
 
 //#include <boost/detail/lightweight_test.hpp>
 	python::object result = python::eval("'abcdefg'.upper()");
-	//std::string value = python::extract<std::string>(result) BOOST_EXTRACT_WORKAROUND;
-	////BOOST_TEST(value == "ABCDEFG");
+	std::string value = python::extract<std::string>(result) BOOST_EXTRACT_WORKAROUND;
+	cout << value << endl;
+	BOOST_TEST(value == "ABCDEFG");
 
 	//object main_module = import("__main__");
 	//if (python::handle_exception(eval_test)) {
