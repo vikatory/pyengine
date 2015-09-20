@@ -16,6 +16,9 @@
     <Filter Include="common">
       <UniqueIdentifier>{e89c7c86-c08a-416e-91e2-ddf60c58eafb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pyengine">
+      <UniqueIdentifier>{090332db-d6b6-41ea-af08-cc4ba594bbb0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,22 +27,22 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="pyengine.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="common\sys.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="pyengine\pyengine.cpp">
+      <Filter>pyengine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pyengine.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="common\sys.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="common\platform.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="pyengine\pyengine.h">
+      <Filter>pyengine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

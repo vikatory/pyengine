@@ -11,6 +11,7 @@ namespace python = boost::python;
 
 PyEngine::PyEngine()
 {
+	init();
 }
 
 PyEngine::~PyEngine()
@@ -55,7 +56,6 @@ void check_pyerr(bool pyerr_expected = false)
 }
 
 
-
 void PyEngine::init()
 {
 	bf::path oCurPath = bf::current_path();		// 取得当前目录, 一般是cpp文件夹，若把exe拿出来运行，就是exe所在的文件夹
@@ -65,23 +65,38 @@ void PyEngine::init()
 	SetEnviromentValue("PYTHONPATH", "E:\\CODE\\project_1\\python-3.5.0-embed-amd64;E:\\CODE\\project_1\\python-3.5.0-embed-amd64\\Lib");
 	Py_SetProgramName(L"python35");
 	Py_Initialize();
+	//using namespace boost::python;				// 作用域类有效
+	test();
 
-	using namespace boost::python;				// 作用域类有效
-	//object main_module = import("__main__");
+}
 
-//#include <boost/detail/lightweight_test.hpp>
-	python::object result = python::eval("'abcdefg'.upper()");
-	std::string value = python::extract<std::string>(result) BOOST_EXTRACT_WORKAROUND;
+std::string PyEngine::eval(std::string expression)  // eval函数可以计算Python表达式，并返回结果
+{
+	python::object oPyMainModule = python::import("__main__");
+	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
+	python::object oResult = python::eval(expression.c_str(), oPyMainNamespace);
+	std::string sValue = python::extract<std::string>(oResult) BOOST_EXTRACT_WORKAROUND;
+	return sValue;
+}
+
+void PyEngine::exec(std::string code)  // 通过exec可以执行动态Python代码，exec不返回结果
+{
+	python::object oPyMainModule = python::import("__main__");
+	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
+	python::object oResult = python::exec(code.c_str(), oPyMainNamespace);
+}
+
+void PyEngine::test()
+{
+	exec("a='11ass77'");
+	string value = eval("a.upper()");
 	cout << value << endl;
-	BOOST_TEST(value == "ABCDEFG");
 
 	//object main_module = import("__main__");
 	//if (python::handle_exception(eval_test)) {
 	//	check_pyerr();
 	//}
-	
 }
-
 
 
 
