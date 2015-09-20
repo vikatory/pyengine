@@ -9,10 +9,10 @@ public:
 
 	void init();
 	void test();
-	std::string eval(std::string const &expression);
-	void exec(std::string const &code);
-	void exec_file(std::string const &filename);
+	std::string eval(const char *expression);
+	void exec(const char *code);
+	void execFile(const char *filename);
+	std::string scriptPath();
 private:
-	//void execPyFile(std::string const &filename);
 };
 

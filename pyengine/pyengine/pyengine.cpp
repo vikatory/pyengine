@@ -4,6 +4,8 @@
 #include "sys.h"
 #include <boost/python.hpp>
 #include <boost/detail/lightweight_test.hpp>
+#include <boost/property_tree/ptree.hpp>  
+#include <boost/property_tree/ini_parser.hpp>  
 
 using namespace std;
 
@@ -38,46 +40,60 @@ void PyEngine::init()
 
 }
 
-void evalPyExpr(std::string const &expression, std::string *result)
+void evalPyExpr(const char *expression, std::string *result)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
-	python::object oResult = python::eval(expression.c_str(), oPyMainNamespace);
+	python::object oResult = python::eval(expression, oPyMainNamespace);
 	*result = python::extract<std::string>(oResult) BOOST_EXTRACT_WORKAROUND;
 }
 
-std::string PyEngine::eval(std::string const &expression)  // eval函数可以计算Python表达式，并返回结果
+std::string PyEngine::eval(const char *expression)  // eval函数可以计算Python表达式，并返回结果
 {
 	std::string sValue = "";
 	safe_execute(boost::bind(evalPyExpr, expression, &sValue));
 	return sValue;
 }
 
-void execPyCode(std::string const &code)
+void execPyCode(const char *code)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
-	python::object oResult = python::exec(code.c_str(), oPyMainNamespace);
+	python::object oResult = python::exec(code, oPyMainNamespace);
 }
 
-void PyEngine::exec(std::string const &code)  // 通过exec可以执行动态Python代码，exec不返回结果
+void PyEngine::exec(const char *code)  // 通过exec可以执行动态Python代码，exec不返回结果
 {
 	safe_execute(boost::bind(execPyCode, code));
 }
 
-void execPyFile(std::string const &filename)
+void execPyFile(const char *filename)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
-	python::object result = python::exec_file(filename.c_str(), oPyMainModule);
+	python::object result = python::exec_file(filename, oPyMainModule);
 }
 
-void PyEngine::exec_file(std::string const &filename)
+void PyEngine::execFile(const char *filename)
 {
 	safe_execute(boost::bind(execPyFile, filename));
 }
 
-
+std::string PyEngine::scriptPath()
+{
+	string sPath;
+	try
+	{
+		boost::property_tree::ptree pt;
+		boost::property_tree::ini_parser::read_ini("config.ini", pt);
+		sPath = pt.get<std::string>("script.pyscript");
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << "Error:" << ex.what() << std::endl;
+	}
+	return sPath;
+}
 
 
 
@@ -87,7 +103,8 @@ void PyEngine::test()
 	exec("a='11ass77'");
 	string value = eval("a.upper()");
 	cout << value << "-------------" << endl;
-
+	string sPyPath = scriptPath();
+	cout << sPyPath << endl;
 }
 
 
