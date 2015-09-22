@@ -10,3 +10,5 @@
 *.obj
 *.idb
 *.opensdf
+*.exp
+*.pyc
