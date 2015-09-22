@@ -107,7 +107,7 @@ void PyEngine::registerPyModule()  // 在Py_Initialize之前调用
 void PyEngine::test()
 {
 	// TODO: py报错不全, 如print((1+2)这种语法错误, 异常处理优化
-	// TODO: windos下彩色控制台, 考虑怎样与boost.log结合
+	// TODO: windos下彩色控制台, 考虑怎样与boost.log结合, py.log优化
 	exec("a='11ass77'");
 	exec("import sys \n"
 		"s=sys.version\n"
