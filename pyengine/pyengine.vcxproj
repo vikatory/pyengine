@@ -150,12 +150,16 @@
   <ItemGroup>
     <ClCompile Include="common\sys.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pyengine\commonpyfunc.cpp" />
     <ClCompile Include="pyengine\pyengine.cpp" />
+    <ClCompile Include="pyengine\pywrap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\platform.h" />
     <ClInclude Include="common\sys.h" />
+    <ClInclude Include="pyengine\commonpyfunc.h" />
     <ClInclude Include="pyengine\pyengine.h" />
+    <ClInclude Include="pyengine\pywrap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

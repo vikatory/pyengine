@@ -1,7 +1,8 @@
 #include "pyengine.h"
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include "sys.h"
+#include "pywrap.h"
+#include <boost/filesystem.hpp>
 #include <boost/python.hpp>
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/property_tree/ptree.hpp>  
@@ -34,6 +35,7 @@ void PyEngine::init()
 	// 通过设置环境变量包含dll路径
 	SetEnviromentValue("PYTHONPATH", "E:\\CODE\\project_1\\python-3.5.0-embed-amd64;E:\\CODE\\project_1\\python-3.5.0-embed-amd64\\Lib");
 	Py_SetProgramName(L"python35");
+	registerPyModule();  // 在Py_Initialize之前调用
 	Py_Initialize();
 	//using namespace boost::python;				// 作用域类有效
 	test();
@@ -71,7 +73,7 @@ void execPyFile(const char *filename)
 {
 	python::object oPyMainModule = python::import("__main__");
 	python::object oPyMainNamespace = oPyMainModule.attr("__dict__");
-	python::object result = python::exec_file(filename, oPyMainModule);
+	python::object result = python::exec_file(filename, oPyMainNamespace, oPyMainNamespace);
 }
 
 void PyEngine::execFile(const char *filename)
@@ -95,16 +97,27 @@ std::string PyEngine::scriptPath()
 	return sPath;
 }
 
+void PyEngine::registerPyModule()  // 在Py_Initialize之前调用
+{
+	registerPyFuncs();
+}
 
 
 
 void PyEngine::test()
 {
+	// TODO: py报错不全, 如print((1+2)这种语法错误, 异常处理优化
+	// TODO: windos下彩色控制台, 考虑怎样与boost.log结合
 	exec("a='11ass77'");
-	string value = eval("a.upper()");
-	cout << value << "-------------" << endl;
+	exec("import sys \n"
+		"s=sys.version\n"
+		"a=s");
+	string value = eval("a");
 	string sPyPath = scriptPath();
+	exec(("scriptRoot = \"" + sPyPath + "\"\n").c_str());
+	sPyPath.append("/main.py");
 	cout << sPyPath << endl;
+	execFile(sPyPath.c_str());
 }
 
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+#include <string>
 
 class PyEngine
 {
@@ -13,6 +13,7 @@ public:
 	void exec(const char *code);
 	void execFile(const char *filename);
 	std::string scriptPath();
+	void registerPyModule();
 private:
 };
 

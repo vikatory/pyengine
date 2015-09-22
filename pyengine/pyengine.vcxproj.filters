@@ -33,6 +33,12 @@
     <ClCompile Include="pyengine\pyengine.cpp">
       <Filter>pyengine</Filter>
     </ClCompile>
+    <ClCompile Include="pyengine\commonpyfunc.cpp">
+      <Filter>pyengine</Filter>
+    </ClCompile>
+    <ClCompile Include="pyengine\pywrap.cpp">
+      <Filter>pyengine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\sys.h">
@@ -42,6 +48,12 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="pyengine\pyengine.h">
+      <Filter>pyengine</Filter>
+    </ClInclude>
+    <ClInclude Include="pyengine\commonpyfunc.h">
+      <Filter>pyengine</Filter>
+    </ClInclude>
+    <ClInclude Include="pyengine\pywrap.h">
       <Filter>pyengine</Filter>
     </ClInclude>
   </ItemGroup>
