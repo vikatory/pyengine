@@ -148,6 +148,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\customconsole.cpp" />
     <ClCompile Include="common\sys.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pyengine\commonpyfunc.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="pyengine\pywrap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\customconsole.h" />
     <ClInclude Include="common\platform.h" />
     <ClInclude Include="common\sys.h" />
     <ClInclude Include="pyengine\commonpyfunc.h" />

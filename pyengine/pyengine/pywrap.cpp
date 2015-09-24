@@ -1,7 +1,6 @@
 #include "pywrap.h"
 #include <boost/python.hpp>
-#include <boost/detail/lightweight_test.hpp>
-
+#include <iostream>
 #include "commonpyfunc.h"
 
 using namespace boost::python;
@@ -16,7 +15,6 @@ BOOST_PYTHON_MODULE(cm)
 
 void registerPyFuncs()
 {
-#include<iostream>
 	// 注册模块到解释器中
 	if (PyImport_AppendInittab(const_cast<char*>("cm"),
 #if PY_VERSION_HEX >= 0x03000000 

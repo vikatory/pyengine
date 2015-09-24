@@ -1,10 +1,12 @@
 #include "commonpyfunc.h"
+#include"customconsole.h"
 #include <iostream>
 
 
-void cwrite(char *msg, char *textColor, char *backColor)
+
+void cwrite(char *sMsg, char *sTextColor, char *sBackColor)
 {
-	std::cout << msg;
+	printc(sMsg, sTextColor, sBackColor);
 }
 
 

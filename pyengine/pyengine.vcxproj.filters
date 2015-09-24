@@ -39,6 +39,9 @@
     <ClCompile Include="pyengine\pywrap.cpp">
       <Filter>pyengine</Filter>
     </ClCompile>
+    <ClCompile Include="common\customconsole.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\sys.h">
@@ -55,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="pyengine\pywrap.h">
       <Filter>pyengine</Filter>
+    </ClInclude>
+    <ClInclude Include="common\customconsole.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
