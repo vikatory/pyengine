@@ -4,7 +4,7 @@
 
 
 
-void cwrite(char *sMsg, char *sTextColor, char *sBackColor)
+void cwrite(const char *sMsg, const char *sTextColor, const char *sBackColor)
 {
 	printc(sMsg, sTextColor, sBackColor);
 }

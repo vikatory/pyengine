@@ -1,6 +1,4 @@
 
-#include <stdio.h>
-#include <tchar.h>
 #include "pyengine.h"
 #include "sys.h"
 

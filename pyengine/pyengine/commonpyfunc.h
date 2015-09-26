@@ -1,5 +1,5 @@
 #pragma once
 
 
-void cwrite(char *msg, char *textColor = "", char *backColor = "");
+void cwrite(const char *msg, const char *textColor = "", const char *backColor = "");
 

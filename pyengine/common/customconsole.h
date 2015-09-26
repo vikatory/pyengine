@@ -1,5 +1,5 @@
 #pragma once
 
-void printc(char *msg, char *textColor = "", char *backColor = "");
+void printc(const char *msg, const char *textColor = "", const char *backColor = "");
 
 

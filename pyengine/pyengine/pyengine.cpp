@@ -1,7 +1,8 @@
 #include "pyengine.h"
-#include <iostream>
+#include "commonpyfunc.h"
 #include "sys.h"
 #include "pywrap.h"
+#include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/python.hpp>
 #include <boost/detail/lightweight_test.hpp>
@@ -106,7 +107,6 @@ void PyEngine::registerPyModule()  // 在Py_Initialize之前调用
 
 void PyEngine::test()
 {
-	// TODO: py报错不全, 如print((1+2)这种语法错误, 异常处理优化
 	// TODO: windos下彩色控制台, 考虑怎样与boost.log结合, py.log优化
 	exec("a='11ass77'");
 	exec("import sys \n"
@@ -125,19 +125,11 @@ template <class T>
 void safe_execute(T functor)
 {
 	void check_pyerr(bool pyerr_expected = false);
-	try
+	if (python::handle_exception(functor))
 	{
-		if (python::handle_exception(functor))
-		{
-			check_pyerr();
-		}
-	}
-	catch (std::exception &ex)
-	{
-		std::cout << ex.what() << std::endl;
+		check_pyerr();
 	}
 };
-
 
 void check_pyerr(bool pyerr_expected = false)
 {
@@ -167,7 +159,7 @@ std::string strErrorMsg;
 
 void log_python_exception()
 {
-	using namespace boost::python;
+	//using namespace boost::python;
 	if (!Py_IsInitialized())
 	{
 		strErrorMsg = "Python运行环境没有初始化!";
@@ -182,9 +174,9 @@ void log_python_exception()
 
 		strErrorMsg.clear();
 		PyErr_NormalizeException(&type_obj, &value_obj, 0);
-		if (PyBytes_Check(PyObject_Str(value_obj)))
+		if (PyUnicode_Check(PyObject_Str(value_obj)))
 		{
-			strErrorMsg = PyBytes_AsString(PyObject_Str(value_obj));
+			strErrorMsg = _PyUnicode_AsString(PyObject_Str(value_obj));
 		}
 
 		if (traceback_obj != NULL)
@@ -207,7 +199,7 @@ void log_python_exception()
 							Py_ssize_t listSize = PyList_Size(errList);
 							for (Py_ssize_t i = 0; i < listSize; ++i)
 							{
-								strErrorMsg += PyBytes_AsString(PyList_GetItem(errList, i));
+								strErrorMsg += _PyUnicode_AsString(PyList_GetItem(errList, i));
 							}
 						}
 					}
@@ -219,7 +211,7 @@ void log_python_exception()
 		Py_XDECREF(value_obj);
 		Py_XDECREF(traceback_obj);
 	}
-
-	cout << strErrorMsg << endl;
+	strErrorMsg.append("\n");
+	cwrite(strErrorMsg.c_str(), "red_h");
 }
 
